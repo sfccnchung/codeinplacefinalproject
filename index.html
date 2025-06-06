@@ -1,106 +1,38 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>🔮 MYSTERY MIND READER 3000</title>
-    <script src="https://cdn.jsdelivr.net/pyodide/v0.23.4/full/pyodide.js"></script>
-    <style>
-        body { font-family: 'Courier New', monospace; background: #0f0c29; color: #e2e8ff; max-width: 800px; margin: 0 auto; padding: 20px; }
-        #output { white-space: pre-wrap; background: #1a1a2e; padding: 20px; border-radius: 10px; border: 1px solid #6e6e8a; min-height: 200px; }
-        button, select { background: #4e3a8e; color: white; border: none; padding: 10px 15px; margin: 5px; border-radius: 5px; cursor: pointer; }
-        input { background: #2a2a4e; color: white; border: 1px solid #6e6e8a; padding: 8px; border-radius: 5px; }
-    </style>
-</head>
-<body>
-    <h1>🔮✨ MYSTERY MIND READER 3000 ✨🔮</h1>
-    <div id="output"></div>
-    
-    <div id="controls">
-        <select id="difficulty">
-            <option value="10">Novice (10 tries)</option>
-            <option value="7">Adept (7 tries)</option>
-            <option value="5">Psychic (5 tries)</option>
-        </select>
-        <button onclick="startGame()">Start Game</button>
-    </div>
-    
-    <div id="gameInput" style="display:none">
-        <input type="number" id="userGuess" placeholder="Enter guess (1-100)" min="1" max="100">
-        <button onclick="submitGuess()">Submit</button>
-    </div>
+import random
 
-    <script>
-        let pyodide;
-        let attempts = 0;
-        let maxAttempts = 7;
-        let secretNumber;
-        
-        async function initializePyodide() {
-            pyodide = await loadPyodide();
-            await pyodide.loadPackage("micropip");
-            output("✨ Loading psychic energies...");
-        }
-        
-        function output(text) {
-            document.getElementById("output").innerHTML += text + "\n";
-        }
-        
-        function startGame() {
-            maxAttempts = parseInt(document.getElementById("difficulty").value);
-            document.getElementById("controls").style.display = "none";
-            document.getElementById("gameInput").style.display = "block";
+def NumberGuessingGame():
+    print("""
+    Number Guessing Game
+    Try to guess the secret number between 1 and 100
+    """)
+    
+    secret = random.randint(1, 100)
+    attempts = 0
+    difficulty = input("Choose difficulty:\n1. Easy (10 tries)\n2. Medium (7 tries)\n3. Hard (5 tries)\n> ")
+    max_attempts = {"1":10, "2":7, "3":5}.get(difficulty, 7)
+    
+    while attempts < max_attempts:
+        try:
+            guess = int(input(f"\nAttempt {attempts+1}/{max_attempts}\nYour guess: "))
+            attempts += 1
             
-            pyodide.runPython(`
-                import random
-                secret_number = random.randint(1, 100)
-            `);
-            
-            secretNumber = pyodide.globals.get("secret_number");
-            output("\n🔮 I've chosen a secret number between 1 and 100!");
-            output(`⚡ You have ${maxAttempts} attempts to guess it.`);
-        }
-        
-        function submitGuess() {
-            const guess = parseInt(document.getElementById("userGuess").value);
-            if (isNaN(guess) || guess < 1 || guess > 100) {
-                output("⚠️ Please enter a number between 1-100!");
-                return;
-            }
-            
-            attempts++;
-            const diff = Math.abs(secretNumber - guess);
-            
-            if (guess === secretNumber) {
-                output(`\n🌌 WHOA! You broke the matrix in ${attempts} tries!`);
-                output("The cosmic forces bow to your numerical intuition!");
-                endGame();
-                return;
-            }
-            
-            if (diff <= 5) output("🔥 Burning hot! Almost there!");
-            else if (diff <= 15) output("💨 Warm... getting closer!");
-            else if (guess < secretNumber) output("⬆️ Higher! " + (Math.random() > 0.5 ? "Is that your final answer?" : "Trust your instincts!"));
-            else output("⬇️ Lower! " + (Math.random() > 0.5 ? "The numbers deceive you..." : "Focus your third eye!"));
-            
-            output(`Attempt ${attempts}/${maxAttempts}`);
-            
-            if (attempts >= maxAttempts) {
-                output(`\n💀 GAME OVER! The secret was ${secretNumber}`);
-                output("The computer absorbs your mental energy... better luck next time!");
-                endGame();
-            }
-            
-            document.getElementById("userGuess").value = "";
-        }
-        
-        function endGame() {
-            document.getElementById("gameInput").style.display = "none";
-            document.getElementById("controls").style.display = "block";
-            attempts = 0;
-        }
-        
-        initializePyodide().then(() => {
-            output("🔮✨ MYSTERY MIND READER 3000 ✨🔮\nCan you outsmart the psychic computer?\nI'll read your mind... through numbers!\nGuess my secret number (1-100) to win cosmic bragging rights!");
-        });
-    </script>
-</body>
-</html>
+            if guess == secret:
+                print(f"\nCorrect! You guessed it in {attempts} tries!")
+                return
+                
+            diff = abs(secret - guess)
+            if diff <= 5:
+                print("Very close!")
+            elif diff <= 15:
+                print("Getting warmer")
+            elif guess < secret:
+                print("Higher")
+            else:
+                print("Lower")
+                
+        except ValueError:
+            print("Please enter a valid number between 1-100")
+    
+    print(f"\nGame over! The number was {secret}")
+
+NumberGuessingGame()
